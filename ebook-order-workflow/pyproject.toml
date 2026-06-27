@@ -1,0 +1,7 @@
+[project]
+name = "ebook-order"
+version = "1.0.0"
+description = "Basic Temporal Workflow that handles ebook order processing"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["temporalio"]

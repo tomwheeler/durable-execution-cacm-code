@@ -1,0 +1,7 @@
+[project]
+name = "payroll"
+version = "1.0.0"
+description = "Temporal workflow that runs payroll for an employee"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["temporalio"]

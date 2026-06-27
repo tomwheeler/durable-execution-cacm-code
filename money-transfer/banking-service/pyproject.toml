@@ -1,0 +1,9 @@
+[project]
+name = "banking-service"
+version = "1.0.0"
+description = "A multi-bank account service with a web UI and APIs that can be disabled for each individual bank"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "flask>=3.0",
+]
