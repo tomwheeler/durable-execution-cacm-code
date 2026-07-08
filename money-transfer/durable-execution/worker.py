@@ -8,6 +8,7 @@ pool executor.
 
 import asyncio
 import concurrent.futures
+import logging
 
 from temporalio.client import Client
 from temporalio.worker import Worker
@@ -36,4 +37,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     asyncio.run(main())
