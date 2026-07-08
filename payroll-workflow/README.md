@@ -32,12 +32,11 @@ It demonstrates two ways to interact with a running workflow:
 
 ## Prerequisites
 
-* You will need the `uv` package manager. Ensure that this is
-  [installed](https://docs.astral.sh/uv/getting-started/installation/)
-  and that the `uv` command is in your executable path.
-* You will need Python 3.10 or higher.
-* You will also need to [install the Temporal CLI](https://docs.temporal.io/cli#install)
-  and ensure that the `temporal` command is in your executable path.
+* The [`uv`](https://docs.astral.sh/uv/getting-started/installation/) package
+  manager, with the `uv` command in your executable path.
+* [Python 3.10](https://www.python.org/downloads/) or higher.
+* The [Temporal CLI](https://docs.temporal.io/cli#install), with the
+  `temporal` command in your executable path.
 
 ## Running the example
 
@@ -71,7 +70,7 @@ uv run python worker.py
 ```
 
 The worker processes the workflow and activities. Log messages from each
-deposit will appear here.
+deposit will appear in the worker's terminal window.
 
 ### Hire the employee
 
@@ -81,6 +80,11 @@ employee:
 ```command
 uv run python start_payroll.py
 ```
+
+Since this is a long-running workflow, the command is designed to submit
+the request and then exit. If you open the Temporal Web UI in your browser
+(<http://localhost:8233/>), you should see a new payroll workflow listed
+there. Click it to view the details.
 
 The workflow deposits the first payment right away, so you will see a deposit
 in the worker's terminal output immediately. It then waits until the next
@@ -105,18 +109,6 @@ uv run python query_pay_rate.py
 This issues a query to the workflow, retrieving the current value of the
 variable that holds the pay rate.
 
-### Query the total amount paid
-
-Run the following to ask the workflow how much it has paid the employee so
-far, across all pay periods:
-
-```command
-uv run python query_cumulative_amount.py
-```
-
-This issues a query to the workflow, retrieving the running total that the
-workflow updates after each deposit.
-
 ### Change the pay rate
 
 Run the following to give the employee a raise:
@@ -129,6 +121,28 @@ This sends a signal that sets the pay rate to $2,750 (you can change this
 by modifying the `new_pay_rate` variable in that file). You can confirm the
 change by running `query_pay_rate.py` again. The new amount applies to all
 future deposits.
+
+### Query the total amount paid
+
+Run the following to ask the workflow how much it has paid the employee so
+far, across all pay periods:
+
+```command
+uv run python query_cumulative_amount.py
+```
+
+This issues a query to the workflow, retrieving the running total that the
+workflow updates after each deposit. 
+
+If you'd like to see Durable Execution in action, press Ctrl-C in the
+worker's terminal to kill it, then run the command from the **Start the
+worker** section to start a new worker. Afterwards, run the previous
+command to retrieve the total amount paid to the worker. You should find
+that, while the value may now be higher if one or more pay periods has
+since elapsed, the previous amount paid remains accounted for. No data
+was lost and no extra payments were made. This is the power of Durable
+Execution.
+
 
 ### End employment
 
