@@ -22,7 +22,7 @@ class MoneyTransferWorkflow:
         withdrawal = PaymentDetails(
             hostname=details.source_hostname,
             account_id=details.source_account,
-            amount=details.amount
+            amount=details.amount,
         )
         confirmation1 = await workflow.execute_activity(
             withdraw,

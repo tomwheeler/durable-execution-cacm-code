@@ -22,8 +22,7 @@ class TransferDetails:
 
 @dataclass
 class PaymentDetails:
-    """Input to a single withdraw or deposit activity.
-    """
+    """Input to a single withdraw or deposit activity."""
 
     hostname: str
     account_id: str
