@@ -34,7 +34,7 @@ contain any Temporal code.
   key. A repeated request with a known key returns the original confirmation
   number without changing the balance (and logs that it ignored a
   duplicate). Confirmation numbers are uppercase. With an idempotency key,
-  a retried request reproduces its number (e.g. `WD-SEATTLE-A123-595B6`); 
+  a retried request reproduces its number (e.g. `WD-MIAMI-A123-595B6`); 
   without a key each call gets a unique number so that repeated identical
   transactions don't collide.
 * **Persistence.** All state is written to a human-readable
