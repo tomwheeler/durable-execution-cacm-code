@@ -55,7 +55,7 @@ class BookOrderWorkflow:
                 receipt,
                 start_to_close_timeout=timedelta(seconds=15),
             )
-        except ActivityError:
+        except ActivityError:  # this is the saga pattern in action
             workflow.logger.warning("Email delivery failed; issuing refund")
             try:
                 payment_confirmation = await workflow.execute_activity(
