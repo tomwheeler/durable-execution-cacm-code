@@ -100,8 +100,8 @@ and availability of the application.
 
 Once you remove the `charge.fail` file, the next retry attempt will
 succeed, and the execution will proceed with the `send_email` activity. 
-The `send_email` activity is coded to fail in roughly half of all 
-attempts. Unlike the `charge_customer` failure above, this one is 
+The `send_email` activity is coded to fail in roughly one out of
+five attempts. Unlike the `charge_customer` failure above, this one is 
 non-retryable, so the failure propagates back to the workflow instead
 of being retried as it otherwise would. The workflow responds by
 running the `refund_customer` activity, an example of a compensating
