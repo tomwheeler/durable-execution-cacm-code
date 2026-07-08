@@ -8,12 +8,16 @@ accounts at each bank, see the current balances, and manage both
 the banks and accounts. A single command starts a process that serves
 both the browser UI and the HTTP APIs.
 
+Although the Temporal code in the `durable-execution` project uses this
+service, the service itself has nothing to do with Temporal and does not
+contain any Temporal code.
+
 ## What it does
 
 * **Seeded default state.** On first launch (and immediately after a reset)
-  the service starts with two banks — `seattle` with account `A123` and
-  `miami` with account `B789`, each holding $1000 — and an empty idempotency
-  map.
+  the service starts with two banks — `miami` with account `A123` and
+  `seattle` with account `B789`, each holding $1000 — and an empty map
+  used to store idempotency keys.
 * **Multiple banks.** A bank is identified by the city it is in: a single
   lowercase word of letters only (`seattle`, `miami`, `denver`). Names such
   as `san francisco`, `st. louis`, or `o'fallon` are rejected. Account IDs
@@ -89,24 +93,24 @@ with body `{"city": "..."}`.
 
 ### Example
 
-The seeded `seattle` bank already has account `A123` with a $1000 balance,
+The seeded `miami` bank already has account `A123` with a $1000 balance,
 so you can perform transactions with it right away:
 
 ```command
 # Withdraw $100 twice with the same idempotency key: the balance drops once.
-curl -X POST http://127.0.0.1:9109/api/banks/seattle/accounts/A123/withdraw \
+curl -X POST http://127.0.0.1:9109/api/banks/miami/accounts/A123/withdraw \
   -H 'Content-Type: application/json' -d '{"amount":100,"idempotency_key":"k1"}'
-curl -X POST http://127.0.0.1:9109/api/banks/seattle/accounts/A123/withdraw \
+curl -X POST http://127.0.0.1:9109/api/banks/miami/accounts/A123/withdraw \
   -H 'Content-Type: application/json' -d '{"amount":100,"idempotency_key":"k1"}'
 
-curl http://127.0.0.1:9109/api/banks/seattle/accounts/A123/balance
+curl http://127.0.0.1:9109/api/banks/miami/accounts/A123/balance
 # -> {"balance": 900}
 ```
 
 When a bank's API is stopped from the UI, the same calls return:
 
 ```json
-{"error": "API access for bank 'seattle' is currently unavailable"}
+{"error": "API access for bank 'miami' is currently unavailable"}
 ```
 
 with HTTP status `503`.
