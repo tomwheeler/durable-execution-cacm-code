@@ -23,4 +23,4 @@ def generate_success_message(c1, c2):
 
 
 if __name__ == "__main__":
-    transfer_money()
+    print(transfer_money())
