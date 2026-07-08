@@ -38,9 +38,9 @@ uv run python transfer.py
 ```
 
 This is expected to complete successfully, so it represents the
-so-called happy path. Upon completion the first account should
-have a balance of \$900 and the second account should have a balance
-of \$1100.
+so-called happy path. Upon completion the source account balance
+has decreased by \$100 and the destination account balance has
+increased by \$100.
 
 
 ### Premature termination

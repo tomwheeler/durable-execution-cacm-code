@@ -41,7 +41,7 @@ Second, start a local Temporal service, if it's not already running.
 temporal server start-dev
 ```
 This also makes the Web UI available at <http://localhost:8233>. You
-you can use this to follow the progress of the workflow execution and
+can use this to follow the progress of the workflow execution and
 see its event history.
 
 Third, in the directory containing this `README.md`, start a *worker*. This is
@@ -62,8 +62,8 @@ uv run python starter.py
 
 This is expected to complete successfully, so it represents the so-called
 happy path. The command prints a line beginning with `SUCCESS:`. Upon
-completion the first account should have a balance of \$900 and the second
-account should have a balance of \$1100.
+completion the source account balance has decreased by \$100 and the
+destination account balance has increased by \$100.
 
 ### Premature termination
 Now induce the same kind of crash that lost money in the `normal-execution`
@@ -87,10 +87,10 @@ uv run python starter.py
 ```
 
 The worker process will terminate immediately after the withdrawal. At this
-point the source account has been debited to \$900, but the destination
-account is still \$1000 — the money is in flight. The `starter.py` command
-does not fail; it simply waits, because the workflow is durably suspended on
-the Temporal service.
+point the source account has been debited by \$100, but the destination
+account has not yet been credited — the money is in flight. The `starter.py`
+command does not fail; it simply waits, because the workflow is durably
+suspended on the Temporal service.
 
 Now restart the worker, this time normally:
 
@@ -101,8 +101,9 @@ uv run python worker.py
 After a brief pause, Temporal retries the withdrawal. Because the retried call
 carries the same idempotency key, the bank recognizes it as a duplicate and
 does *not* debit the account a second time. The deposit then proceeds,
-`starter.py` prints its `SUCCESS:` line, and the final balances are \$900 and
-\$1100.
+`starter.py` prints its `SUCCESS:` line, and the transfer finishes with the
+source account \$100 lower and the destination account \$100 higher than when
+this transfer began.
 
 No money was lost, and none was withdrawn twice. Contrast this with the
 `normal-execution` example, where the same crash left the source account \$100
