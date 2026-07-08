@@ -14,7 +14,7 @@ class PayrollWorkflow:
         self.cumulative_pay = 0
 
     @workflow.run
-    async def run(self, account: str, pay_rate: int):
+    async def run(self, account: str, pay_rate: int) -> None:
         self.pay_rate = pay_rate
 
         # Deposit the employee's pay every two weeks for as long as they
@@ -27,11 +27,15 @@ class PayrollWorkflow:
         # you like (just restart the worker afterwards so your change
         # will take effect).
         while self.is_employed:
+            # Capture the rate once so the deposit and the cumulative total
+            # always agree, even if a set_pay_rate signal arrives while the
+            # deposit activity is running.
+            amount = self.pay_rate
             await workflow.execute_activity(
-                deposit, args=[account, self.pay_rate],
+                deposit, args=[account, amount],
                 start_to_close_timeout=timedelta(seconds=30),
             )
-            self.cumulative_pay += self.pay_rate
+            self.cumulative_pay += amount
             await workflow.sleep(timedelta(seconds=14))
 
     @workflow.signal

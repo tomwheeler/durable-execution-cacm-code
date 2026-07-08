@@ -50,10 +50,8 @@ running:
 temporal server start-dev
 ```
 
-Leave this running. You can view the Web UI at <http://localhost:8233/>.
-If you open your browser to <http://localhost:8233/>, you will be able
-to follow the progress of the payroll workflow as you complete the steps
-that follow.
+Leave this running. You can follow the payroll workflow's progress in the
+Web UI at <http://localhost:8233/> as you complete the steps that follow.
 
 ### Set up project dependencies
 
@@ -141,9 +139,6 @@ uv run python end_employment.py
 ```
 
 This sends a signal that stops the payroll. The workflow finishes the next
-time it wakes from its two-week wait, at which point it sees that employment
-has ended and completes instead of making another deposit. You can watch its
-status change to Completed in the Web UI.
-
-
-
+time it wakes at the start of the next pay period, at which point it sees that
+employment has ended and completes instead of making another deposit. You can
+watch its status change to Completed in the Web UI.
