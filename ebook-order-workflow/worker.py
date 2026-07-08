@@ -9,7 +9,6 @@ from workflow import BookOrderWorkflow
 
 
 async def main():
-    logging.basicConfig(level=logging.INFO)
     client = await Client.connect("localhost:7233", namespace="default")
 
     worker = Worker(
@@ -23,4 +22,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     asyncio.run(main())
