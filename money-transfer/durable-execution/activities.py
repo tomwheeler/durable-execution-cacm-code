@@ -33,7 +33,7 @@ def withdraw(payment: PaymentDetails) -> str:
     # *before* Temporal can record the activity's result. Temporal will retry
     # the activity on the next attempt; because it sends the same idempotency
     # key, the bank ignores the duplicate and the account is debited only once.
-    if os.getenv("CRASH_AFTER_WITHDRAW") and activity.info().attempt == 1:
+    if os.getenv("CRASH_AFTER_WITHDRAW") and info.attempt == 1:
         activity.logger.warning("Simulating a crash after the withdrawal")
         os._exit(1)
 
