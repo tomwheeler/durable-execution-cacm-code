@@ -30,8 +30,8 @@ uv run python app.py
 
 After this, open your browser to <http://127.0.0.1:9109>. You will see
 a web page showing the current balances of two accounts, each of which
-should initially have $1000. As you progress through the instructions
-that follow, you will see those balance change in reaction to `withdraw`
+should initially have \$1000. As you progress through the instructions
+that follow, you will see those balances change in reaction to `withdraw`
 and `deposit` calls invoked by the code. You can click the **Reset All**
 button in the upper-right corner of the page to restore the original 
 balances of both accounts.
