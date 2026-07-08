@@ -28,6 +28,14 @@ cd banking-service
 uv run python app.py
 ```
 
+After this, open your browser to <http://127.0.0.1:9109>. You will see
+a web page showing the current balances of two accounts, each of which
+should initially have $1000. As you progress through the instructions
+that follow, you will see those balance change in reaction to `withdraw`
+and `deposit` calls invoked by the code. You can click the **Reset All**
+button in the upper-right corner of the page to restore the original 
+balances of both accounts.
+
 ### Happy path
 Open a new terminal to the directory containing this `README.md`
 and then run the following command, which uses the banking service
@@ -65,5 +73,5 @@ uv run python transfer.py
 
 You should observe that, while both steps completed this time, it
 repeated the withdrawal from the previous attempt. As a result of
-the crash, the source account balance is \$700 instead of \$800,
+the crash, the source account balance is \$800 instead of \$900,
 so \$100 has disappeared.
