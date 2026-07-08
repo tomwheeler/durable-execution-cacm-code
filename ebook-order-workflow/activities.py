@@ -5,11 +5,7 @@ from pathlib import Path
 from temporalio import activity
 from temporalio.exceptions import ApplicationError
 
-from shared import PaymentInput, OrderConfirmation
-
-# Used by charge_customer and refund_customer to store idempotency keys
-past_charges = {}
-past_refunds = {}
+from shared import PaymentInput, Receipt
 
 
 @activity.defn
@@ -29,72 +25,51 @@ async def validate_coupon(coupon_code: str) -> int:
 
 
 @activity.defn
-async def charge_customer(input_data: PaymentInput) -> str:
-    activity.logger.info(
-        f"Charging {input_data.amount} on card {input_data.payment_card_number}"
-    )
-
-    # Use an idempotency key to handle the edge case of the Worker crashing after
-    # the charge was completed but before it was reported to the Temporal Service.
-    # NOTE: This is a toy implementation for demonstration purposes only. This is
-    # only effective for a single Worker and the list of keys is lost upon a
-    # restart.
-    if input_data.order_number in past_charges:
-        activity.logger.info("Returning confirmation from earlier charge")
-        return past_charges[input_data.order_number]
+async def charge_customer(input: PaymentInput) -> str:
+    activity.logger.info(f"Charging {input.amount} to customer")
 
     # Creating a file named 'charge.fail' in your home directory
-    # cause this Activity to fail, allowing you to test what happens
+    # causes this Activity to fail, allowing you to test what happens
     # during a network or service outage. Removing that file enables
     # the Activity to complete during the next retry attempt.
     if Path.home().joinpath("charge.fail").is_file():
-        raise Exception("Failed to charge customer (simulated failure)")
+        raise Exception("Failed to charge customer (intentional failure)")
 
-    # generate a confirmation number that looks somewhat realistic
-    confirmation = f"CHARGE{input_data.amount}{input_data.order_number}"
-    past_charges[input_data.order_number] = confirmation
+    # generate a confirmation number that looks realistic
+    confirmation = f"CHARGE{input.amount}{input.order_number}"
 
-    activity.logger.info(
-        f"Successfully charged customer. Confirmation # {confirmation}."
-    )
+    activity.logger.info(f"Successful charge: Confirmation #{confirmation}")
     return confirmation
 
 
 @activity.defn
-async def refund_customer(input_data: PaymentInput) -> str:
-    activity.logger.info(
-        f"Refunding {input_data.amount} to card {input_data.payment_card_number}"
-    )
+async def refund_customer(input: PaymentInput) -> str:
+    activity.logger.info(f"Refunding {input.amount} to customer")
 
-    if input_data.order_number in past_refunds:
-        activity.logger.info("Returning confirmation from earlier refund")
-        return past_refunds[input_data.order_number]
+    # generate a confirmation number that looks realistic
+    confirmation = f"REFUND{input.amount}{input.order_number}"
 
-    confirmation = f"REFUND{input_data.amount}{input_data.order_number}"
-    past_refunds[input_data.order_number] = confirmation
-
-    activity.logger.info(
-        f"Successfully refunded customer. Confirmation # {confirmation}."
-    )
+    activity.logger.info(f"Successful refund: Confirmation # {confirmation}.")
     return confirmation
 
 
 @activity.defn
-async def send_email(input_data: OrderConfirmation) -> None:
-    activity.logger.info(f"Sending email to {input_data.email_addr}")
+async def send_email(input: Receipt) -> None:
+    activity.logger.info(f"Sending email to {input.email_addr}")
 
-    # Simulate a failure in half of cases (adjust as needed)
-    # Marking it non-retryable triggers the compensation in the workflow.
-    # An alternative is to limit the number of retries via a custom
-    # retry policy for this activity, in which case the compensation
-    # will be triggered once all retry attempts have been exhausted.
-    if random.randrange(100) >= 50:
+    # Simulate a failure in one-fifth of cases (adjust as needed).
+    # Marking it non-retryable triggers compensation (refund) in the
+    # workflow. An alternative approach is to change the workflow code
+    # to use a custom retry policy for this activity that limits the
+    # maximum number of retry attempts, which will trigger compensation
+    # once that limit is reached.
+    if random.randrange(100) >= 80:
         raise ApplicationError(
             "Failed to send email to customer (simulated failure)",
             non_retryable=True,
         )
 
     # simulate time spent connecting to SMTP server and sending mail
-    await asyncio.sleep(2)
+    await asyncio.sleep(random.randrange(3))
 
-    activity.logger.info(f"Successfully sent email to {input_data.email_addr}")
+    activity.logger.info(f"Successfully sent email to {input.email_addr}")

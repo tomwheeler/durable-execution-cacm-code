@@ -14,7 +14,7 @@ async def main():
     order = create_book_order()
 
     handle = await client.start_workflow(
-        BookOrderWorkflow.order_books,
+        BookOrderWorkflow.process_order,
         order,
         id=f"ebook-order-{order.order_number}",
         task_queue=TASK_QUEUE_NAME,

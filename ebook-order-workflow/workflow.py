@@ -6,35 +6,28 @@ from temporalio.exceptions import ActivityError
 # Import activity, passing it through the sandbox without reloading the module
 with workflow.unsafe.imports_passed_through():
     from activities import validate_coupon, charge_customer, refund_customer, send_email
-    from shared import PaymentInput, OrderConfirmation, BookOrder
+    from shared import PaymentInput, Receipt, BookOrder
 
 
 @workflow.defn
 class BookOrderWorkflow:
     @workflow.run
-    async def order_books(self, order: BookOrder) -> OrderConfirmation:
-        total_price = 0
-        for book in order.items:
-            total_price += book.price
+    async def process_order(self, order: BookOrder) -> Receipt:
+        total_price = sum(item.price for item in order.items)
         workflow.logger.info(
             f"Before discount, total price for order is: {total_price} cents"
         )
 
         # validate the coupon code, if there is one
-        discount_percent = 0
         if order.coupon_code:
             discount_percent = await workflow.execute_activity_method(
                 validate_coupon,
                 order.coupon_code,
                 start_to_close_timeout=timedelta(seconds=10),
             )
-
-        if discount_percent > 0:
-            workflow.logger.info(f"applying {discount_percent}% discount to order")
+            workflow.logger.info(f"applying {discount_percent}% discount")
             total_price -= round(total_price * discount_percent / 100)
-            workflow.logger.info(
-                f"After discount, total price for order is: {total_price} cents"
-            )
+            workflow.logger.info(f"Final price is: {total_price}")
 
         payment_input = PaymentInput(
             order_number=order.order_number,
@@ -49,7 +42,7 @@ class BookOrderWorkflow:
             start_to_close_timeout=timedelta(seconds=30),
         )
 
-        order_confirmation = OrderConfirmation(
+        receipt = Receipt(
             order_number=order.order_number,
             amount_charged=total_price,
             payment_confirmation=payment_confirmation,
@@ -59,7 +52,7 @@ class BookOrderWorkflow:
         try:
             await workflow.execute_activity_method(
                 send_email,
-                order_confirmation,
+                receipt,
                 start_to_close_timeout=timedelta(seconds=15),
             )
         except ActivityError:
@@ -68,7 +61,7 @@ class BookOrderWorkflow:
                 payment_input,
                 start_to_close_timeout=timedelta(seconds=30),
             )
-            order_confirmation.payment_confirmation = payment_confirmation
-            order_confirmation.amount_charged = 0
+            receipt.payment_confirmation = payment_confirmation
+            receipt.amount_charged = 0
 
-        return order_confirmation
+        return receipt

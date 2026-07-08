@@ -21,7 +21,7 @@ class BookOrder:
 
 
 @dataclass
-class OrderConfirmation:
+class Receipt:
     order_number: str
     amount_charged: int
     payment_confirmation: str
