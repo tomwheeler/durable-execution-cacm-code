@@ -20,7 +20,7 @@ class BookOrderWorkflow:
 
         # validate the coupon code, if there is one
         if order.coupon_code:
-            discount_percent = await workflow.execute_activity_method(
+            discount_percent = await workflow.execute_activity(
                 validate_coupon,
                 order.coupon_code,
                 start_to_close_timeout=timedelta(seconds=10),
@@ -36,7 +36,7 @@ class BookOrderWorkflow:
             amount=total_price,
         )
 
-        payment_confirmation = await workflow.execute_activity_method(
+        payment_confirmation = await workflow.execute_activity(
             charge_customer,
             payment_input,
             start_to_close_timeout=timedelta(seconds=30),
@@ -50,18 +50,25 @@ class BookOrderWorkflow:
         )
 
         try:
-            await workflow.execute_activity_method(
+            await workflow.execute_activity(
                 send_email,
                 receipt,
                 start_to_close_timeout=timedelta(seconds=15),
             )
         except ActivityError:
-            payment_confirmation = await workflow.execute_activity_method(
-                refund_customer,
-                payment_input,
-                start_to_close_timeout=timedelta(seconds=30),
-            )
-            receipt.payment_confirmation = payment_confirmation
-            receipt.amount_charged = 0
+            workflow.logger.warning("Email delivery failed; issuing refund")
+            try:
+                payment_confirmation = await workflow.execute_activity(
+                    refund_customer,
+                    payment_input,
+                    start_to_close_timeout=timedelta(seconds=30),
+                )
+                receipt.payment_confirmation = payment_confirmation
+                receipt.amount_charged = 0
+            except ActivityError:
+                # If compensation fails, it can be handled outside the
+                # system (e.g., by mailing a check to the customer).
+                workflow.logger.error("Refund failed: manual intervention required")
+                raise
 
         return receipt
