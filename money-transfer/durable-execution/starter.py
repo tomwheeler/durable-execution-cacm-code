@@ -31,9 +31,10 @@ async def main():
         amount=100,
     )
 
-    # A unique workflow ID per run. The idempotency keys the workflow sends to
-    # the bank are derived from this ID, so the retries within one execution
-    # are deduplicated while a brand-new transfer is treated as distinct.
+    # A unique workflow ID per run. Each idempotency key the workflow sends to
+    # the bank combines the run ID (unique per execution) with the activity ID,
+    # so retries within one execution are deduplicated while a brand-new
+    # transfer is treated as distinct.
     result = await client.execute_workflow(
         MoneyTransferWorkflow.run,
         details,
