@@ -9,9 +9,6 @@ app = Flask(__name__)
 service = BankingService()
 
 
-# ---- error handling ----------------------------------------------------
-
-
 @app.errorhandler(ServiceError)
 def handle_service_error(error):
     return jsonify({"error": error.message}), error.status
@@ -36,9 +33,6 @@ def _api_gate(city):
     return None
 
 
-# ---- UI ----------------------------------------------------------------
-
-
 @app.get("/")
 def index():
     return render_template("index.html")
@@ -48,9 +42,6 @@ def index():
 def state():
     """Full state snapshot, polled by the browser for realtime updates."""
     return jsonify(service.snapshot())
-
-
-# ---- operator / admin endpoints (never gated) --------------------------
 
 
 @app.post("/admin/banks")
@@ -93,9 +84,6 @@ def admin_adjust(city, account_id):
     else:
         raise BadRequest("direction must be 'deposit' or 'withdraw'")
     return jsonify({"confirmation": confirmation})
-
-
-# ---- public API endpoints (gated per bank) -----------------------------
 
 
 @app.post("/api/banks/<city>/accounts")
@@ -170,6 +158,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(message)s")
+    start_msg = f"Banking UI available at http://{args.host}:{args.port}"
+    logging.getLogger("werkzeug").info(start_msg)
     # Quiet the per-request access log; 250ms polling would otherwise flood it.
     logging.getLogger("werkzeug").setLevel(logging.WARNING)
     app.run(host=args.host, port=args.port, threaded=True)
