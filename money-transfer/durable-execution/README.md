@@ -78,7 +78,7 @@ example, this time during the `deposit` step.
 Stop the worker (press `Ctrl-C` in its terminal), then start it again 
 with the `CRASH_DURING_DEPOSIT` environment variable set to `1`. This
 causes the `deposit` activity to crash the worker *after* the bank has
-debited the account but *before* Temporal records the result.
+credited the account but *before* Temporal records the result.
 
 On non-UNIX systems, you may need to adjust the command syntax to reflect
 your operating system's syntax for setting environment variables):
