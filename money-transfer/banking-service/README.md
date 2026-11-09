@@ -21,7 +21,8 @@ contain any Temporal code.
 * **Multiple banks.** A bank is identified by the city it is in: a single
   lowercase word of letters only (`seattle`, `miami`, `denver`). Names such
   as `san francisco`, `st. louis`, or `o'fallon` are rejected. Account IDs
-  must be unique within each bank.
+  IDs must be nonempty, unique within each bank, and contain neither a `/`
+  nor `|` character.
 * **Browser UI.** Create banks, create and delete accounts, and manually
   credit/debit an account's balance. The main page lists every account at
   every bank with **realtime balances** (the page polls every 250 ms).
@@ -94,7 +95,9 @@ with body `{"city": "..."}`.
 ### Example
 
 The seeded `miami` bank already has account `A123` with a $1000 balance,
-so you can perform transactions with it right away:
+so you can perform transactions with it right away (users on non-UNIX
+systems may need to adjust the quoting and line continuation in these
+examples for their shells):
 
 ```command
 # Withdraw $100 twice with the same idempotency key: the balance drops once.
