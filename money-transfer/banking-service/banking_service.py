@@ -22,12 +22,10 @@ CITY_PATTERN = re.compile(r"^[a-z]+$")
 #
 #   * With a key, the suffix is a short deterministic hash of the key. Giving
 #     the key fewer characters makes it the least influential field while
-#     still letting it affect the confirmation number, and ensures a retried
-#     request reproduces its original confirmation number.
-#   * Without a key, there is no idempotency contract -- every call is a
-#     distinct transaction -- so the suffix is random, guaranteeing each one
-#     gets its own confirmation number instead of colliding with identical
-#     transactions.
+#     still letting it affect the confirmation number, and ensures that a
+#     retried request reproduces its original confirmation number.
+#   * Without a key, the suffix is generated at random. Since there is no
+#     idempotency contract in this case, each call is treated as distinct.
 #
 # The four primary characters give 16**4 (65,536) values, so two fully
 # distinct keyed transactions collide only about one in 65,536 times -- under
@@ -68,13 +66,12 @@ def _short_hash(value, length):
 
 
 def _make_confirmation(bank, transaction_type, account_id, amount, idempotency_key):
-    """Derive a short, uppercase confirmation number.
+    """Derive a short confirmation number with an uppercase prefix and hash.
 
     With an idempotency key, the result is deterministic: the same (bank,
     transaction type, account ID, amount, idempotency key) always produces the
     same confirmation number, and the key is the least influential field.
-    Without an idempotency key, each call gets a unique random suffix so that
-    repeated identical transactions do not collide on the same number.
+    Without an idempotency key, the result contains a randomly-generated suffix.
     """
     prefix = "WD" if transaction_type == "withdraw" else "DEP"
     primary = _short_hash(
@@ -170,17 +167,20 @@ class BankingService:
 
     @staticmethod
     def _validate_amount(amount, allow_zero=False):
-        try:
-            value = int(amount)
-        except (TypeError, ValueError):
+        if isinstance(amount, bool) or not isinstance(amount, int):
             raise BadRequest("Amount must be an integer number of dollars")
-        if value < 0 or (value == 0 and not allow_zero):
-            raise BadRequest("Amount must be a positive integer number of dollars")
-        return value
+
+        if amount < 0 or (amount == 0 and not allow_zero):
+            qualifier = "nonnegative" if allow_zero else "positive"
+            raise BadRequest(
+                f"Amount must be a {qualifier} integer number of dollars"
+            )
+
+        return amount
 
     def create_bank(self, city):
         with self._lock:
-            if not CITY_PATTERN.match(city or ""):
+            if not CITY_PATTERN.fullmatch(city or ""):
                 raise BadRequest(
                     "Bank name must be a single lowercase word containing only letters"
                 )
@@ -216,6 +216,8 @@ class BankingService:
             account_id = str(account_id)
             if not account_id:
                 raise BadRequest("Account ID is required")
+            if "/" in account_id or "|" in account_id:
+                raise BadRequest("Account ID must not contain '/' or '|'")
             if account_id in bank["accounts"]:
                 raise Conflict(
                     f"Account '{account_id}' already exists at bank '{city}'"
