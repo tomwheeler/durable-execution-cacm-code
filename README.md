@@ -1,6 +1,6 @@
 # Code for Durable Execution Paper
 Code samples related to Tom Wheeler's Durable Execution paper for 
-the _Practice_ section of _Communication of the ACM_.
+the _Practice_ section of _Communications of the ACM_.
 
 There are three code samples in the paper, each of which corresponds
 to one of the following subdirectories:
@@ -15,8 +15,8 @@ code samples in the paper are shorter than the more complete code
 samples in these projects.
 
 ## A note about the Temporal service in these examples
-Each project requires that the Temporal service is running, and
-the instructions for each mentions using this command to start it:
+Each Temporal example requires that the Temporal service is running,
+and the instructions for each mention using this command to start it:
 
 ```command
 temporal server start-dev
