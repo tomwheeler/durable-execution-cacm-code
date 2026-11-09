@@ -172,9 +172,7 @@ class BankingService:
 
         if amount < 0 or (amount == 0 and not allow_zero):
             qualifier = "nonnegative" if allow_zero else "positive"
-            raise BadRequest(
-                f"Amount must be a {qualifier} integer number of dollars"
-            )
+            raise BadRequest(f"Amount must be a {qualifier} integer number of dollars")
 
         return amount
 
