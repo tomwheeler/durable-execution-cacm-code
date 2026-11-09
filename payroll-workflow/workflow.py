@@ -7,6 +7,7 @@ from temporalio import workflow
 with workflow.unsafe.imports_passed_through():
     from activities import deposit
 
+
 @workflow.defn
 class PayrollWorkflow:
     def __init__(self, account: str, pay_rate: int):
@@ -17,11 +18,11 @@ class PayrollWorkflow:
     @workflow.run
     async def run(self, account: str, pay_rate: int) -> None:
         # Deposit the employee's pay every two weeks for as long as they
-        # remain employed. The workflow.sleep call begins a durable timer, 
-        # which is maintained by the Temporal service. It can survive 
+        # remain employed. The workflow.sleep call begins a durable timer,
+        # which is maintained by the Temporal service. It can survive
         # worker restarts and crashes.
-        # 
-        # For demo purposes, this uses a pay period of 14 seconds 
+        #
+        # For demo purposes, this uses a pay period of 14 seconds
         # instead of 14 days, but you can change it to any duration
         # you like (just restart the worker afterwards so your change
         # will take effect).
@@ -31,7 +32,8 @@ class PayrollWorkflow:
             # deposit activity is running.
             amount = self.pay_rate
             await workflow.execute_activity(
-                deposit, args=[account, amount],
+                deposit,
+                args=[account, amount],
                 start_to_close_timeout=timedelta(seconds=30),
             )
             self.cumulative_pay += amount
