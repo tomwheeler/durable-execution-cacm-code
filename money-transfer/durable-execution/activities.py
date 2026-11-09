@@ -42,7 +42,7 @@ def deposit(payment: PaymentDetails) -> str:
     # the worker process *after* the bank has already credited the account but
     # *before* Temporal can record the activity's result. The activity will be
     # retried, but because it sends the same idempotency key, the bank ignores
-    # the duplicate and the account is credit only once. Because of Durable
+    # the duplicate and the account is credited only once. Because of Durable
     # Execution, the previous withdraw step, which was recorded into the
     # history, is not repeated.
     if os.getenv("CRASH_DURING_DEPOSIT") and info.attempt == 1:
