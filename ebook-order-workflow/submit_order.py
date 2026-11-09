@@ -32,7 +32,7 @@ def create_book_order() -> BookOrder:
     books = [book1, book2, book3]
 
     book_order = BookOrder(
-        order_number=f"XD{random.randint(1000, 9999)}",
+        order_number=f"XD{random.randint(1000000, 9999999)}",
         items=books,
         coupon_code="SAVENOW10",
         email_addr="customer@example.com",
