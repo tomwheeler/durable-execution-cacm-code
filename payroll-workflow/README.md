@@ -137,7 +137,7 @@ workflow updates after each deposit.
 If you'd like to see Durable Execution in action, press Ctrl-C in the
 worker's terminal to kill it, then run the command from the **Start the
 worker** section to start a new worker. Afterwards, run the previous
-command to retrieve the total amount paid to the worker. You should find
+command to retrieve the total amount paid to the employee. You should find
 that, while the value may now be higher if one or more pay periods has
 since elapsed, the previous amount paid remains accounted for. No data
 was lost and no extra payments were made. This is the power of Durable
