@@ -72,8 +72,10 @@ completion the source account balance has decreased by \$100 and the
 destination account balance has increased by \$100.
 
 ### Premature termination
-Now induce the same kind of crash that lost money in the `normal-execution`
-example, this time during the `deposit` step. 
+Before proceeding, click the **Reset All** button in the upper-right
+of the banking service to reset the balances of both accounts to $1000.
+
+You will now induce a crash during the `deposit` step. 
 
 Stop the worker (press `Ctrl-C` in its terminal), then start it again 
 with the `CRASH_DURING_DEPOSIT` environment variable set to `1`. This
@@ -81,7 +83,7 @@ causes the `deposit` activity to crash the worker *after* the bank has
 credited the account but *before* Temporal records the result.
 
 On non-UNIX systems, you may need to adjust the command syntax to reflect
-your operating system's syntax for setting environment variables):
+your operating system's syntax for setting environment variables:
 
 ```command
 CRASH_DURING_DEPOSIT=1 uv run python worker.py
@@ -108,12 +110,17 @@ uv run python worker.py
 
 After a brief pause, Temporal retries the deposit. Because the retried
 call uses the same idempotency key as before, the bank recognizes it as
-a duplicate and does *not* debit the account a second time. The deposit
+a duplicate and does *not* credit the account a second time. The deposit
 activity succeeds, and the `starter.py` script that started the workflow
 execution now reports the successful result. Despite the crash, the 
 source account has a balance \$100 lower and the target account has
 a balance \$100 higher than before the crash.
 
-No money was lost, and none was withdrawn twice. Contrast this with the
-`normal-execution` example, where the same crash left the source account
-\$100 short — and re-running the transfer did not fix the problem.
+You can click the account numbers in the banking service UI to verify
+that there was only one withdrawal and only one deposit. You can also
+access the Temporal Web UI at <http://localhost:8233/> to view the
+execution details for the workflow that transferred the money between
+these two accounts. In the end, you should find that the transfer
+worked reliably despite the crash. Contrast this with the earlier 
+(`normal-execution`) example, where a crash led to an incomplete
+transfer, and re-running it caused \$100 to disappear.
