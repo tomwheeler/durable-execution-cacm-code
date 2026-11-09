@@ -9,9 +9,9 @@ Example use:
     from bankingapi import BankingService
 
     bank = BankingService("api.seattle-bank.example.com")
-    bank.create_account("B789", 1000)
-    confirmation = bank.deposit("B789", 100, "BE83-8EBBEED5165D")
-    balance = bank.get_balance("B789")
+    bank.create_account("B123", 1000)
+    confirmation = bank.deposit("B123", 100, "BE83-8EBBEED5165D")
+    balance = bank.get_balance("B123")
 """
 
 import json
@@ -40,7 +40,7 @@ class BankingService:
     """A client bound to a single bank, talking to the service over HTTP.
 
     The first argument simulates a hostname (e.g., api.miami-bank.example.com).
-    The bank (city) name is the part after "api." and before "-bank").
+    The bank (city) name is the part after "api." and before "-bank".
     The optional second argument is the host:port combination used to
     access the service, which defaults to localhost:9109.
     """
@@ -83,7 +83,7 @@ class BankingService:
         return self._transact("deposit", account_id, amount, idempotency_key)
 
     def reset(self):
-        """Reset the whole service: remove all banks, accounts, and history."""
+        """Reset the whole service: restore seeded banks/accounts, and clear transaction history."""
         self._request("POST", "/api/reset")
 
     # there are only utility methods below this point
